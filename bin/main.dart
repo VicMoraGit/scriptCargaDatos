@@ -4,11 +4,10 @@ import 'dart:math';
 
 void main() async {
 
-  //await insertarTiendas();
+  await insertarTiendas();
   await insertarTrabajadores();
-  //await insertarTickets();
-  //await insertarProductos();
-  
+  await insertarTickets();
+  await insertarProductos(); 
   await insertarProductosEnTiendas();
   await insertarProductosTicket();
   
@@ -19,15 +18,25 @@ void main() async {
 void insertarProductosTicket() async {
 
   var codigoProducto, cantidad;
+  var listaRepetidos = [];
+
   var file = File('Ticket_Productos.csv');
   var sink = file.openWrite();
   
-  for(var i = 0; i<50000000;i++){
-    for(var j = 0; j<1+Random().nextInt(10); i++){
+  for(var i = 0; i<5000000;i++){
+    for(var j = 0; j<(1+Random().nextInt(10)); j++){
 
-      codigoProducto = Random().nextInt(1000000);
+      do {
+        
+        codigoProducto = Random().nextInt(1000000);
+
+      }while(listaRepetidos.contains(codigoProducto));
+
+      listaRepetidos.add(codigoProducto);
+
       cantidad = 1+Random().nextInt(10);
-      //se usa el await porque las inserciones tardan un poco cuando son muchas. Al no ser instantaneas sin el await se insertarian muy pocas
+      //se usa el await porque las inserciones tardan un poco cuando son muchas. Al no ser instantaneas sin el await 
+      //se insertarian muy pocas
       //he usado el modulo en tipo para definir solo 10 tipos posibles.
 
       sink.writeln('$i,$codigoProducto,$cantidad');
@@ -35,6 +44,7 @@ void insertarProductosTicket() async {
       print('Insertado producto $j en ticket $i');
       
     }
+    listaRepetidos.clear();
 }
   await sink.close();
 
@@ -49,13 +59,17 @@ void insertarTickets() async {
   for(var i = 0; i<5000000; i++){
 
     importe = 100+Random().nextInt(10001);
-    dia = 1+Random().nextInt(31);
+
     mes = 1+Random().nextInt(12);
+
+    mes == 2 
+    ? dia = 1 + Random().nextInt(28) 
+    : [1,3,5,7,8,10,12].contains(mes)
+      ? dia = 1 + Random().nextInt(31)
+      : dia = 1 + Random().nextInt(30);
+    
     codigoTrabajador = Random( ).nextInt(1000000);
     
-    
-    //se usa el await porque las inserciones tardan un poco cuando son muchas. Al no ser instantaneas sin el await se insertarian muy pocas
-    //he usado el modulo en tipo para definir solo 10 tipos posibles.
 
     await sink.writeln('$i,$importe,$dia-$mes-2019,$codigoTrabajador');
     
@@ -76,9 +90,6 @@ void insertarTrabajadores() async {
 
     salario = 1000+Random().nextInt(4001);
     idTienda = Random().nextInt(200000);
-    
-    //se usa el await porque las inserciones tardan un poco cuando son muchas. Al no ser instantaneas sin el await se insertarian muy pocas
-    //he usado el modulo en tipo para definir solo 10 tipos posibles.
 
     await sink.writeln('$i,ID$i,Nombre$i,Apellidos$i,puesto'+ (i%5).toString() + ',$salario,$idTienda');
     
@@ -90,22 +101,31 @@ void insertarTrabajadores() async {
 
 void insertarProductosEnTiendas() async {
 
-  var codigoBarras, stock;
+  var codigoBarras;
+  var listaRepetidos = [];
+  var stock;
   var file = File('Tienda_Productos.csv');
   var sink = file.openWrite();
+
   for(var i = 0; i<200000;i++){
     for(var j = 0; j<100; j++){
+      //se ha usado una lista para evitar errores de llaves duplicadas en PostgreSQL
+      do{
 
-      codigoBarras = Random().nextInt(1000000);
+        codigoBarras = Random().nextInt(1000000);
+
+      }while(listaRepetidos.contains(codigoBarras));
+      
+      listaRepetidos.add(codigoBarras);
+
       stock = 10+Random().nextInt(191);
-      //se usa el await porque las inserciones tardan un poco cuando son muchas. Al no ser instantaneas sin el await se insertarian muy pocas
-      //he usado el modulo en tipo para definir solo 10 tipos posibles.
 
       await sink.writeln('$i,$codigoBarras,$stock');
       
       print('Insertado $stock productos $codigoBarras en la tienda $i');
       
     }
+    listaRepetidos.clear();
   }
   await sink.close();
 
@@ -121,8 +141,6 @@ void insertarProductos() async {
 
     random = 50+Random().nextInt(951);
     
-    //se usa el await porque las inserciones tardan un poco cuando son muchas. Al no ser instantaneas sin el await se insertarian muy pocas
-    //he usado el modulo en tipo para definir solo 10 tipos posibles.
 
     await sink.writeln('$i,Nombre$i,Tipo'+ (i%10).toString() +',Descripcion1$i,$random');
     
@@ -143,9 +161,6 @@ void insertarTiendas()async{
   for(var i = 0; i<200000; i++){
 
     random = Random().nextInt(50);
-    
-    //se usa el await porque las inserciones tardan un poco cuando son muchas. Al no ser instantaneas sin el await se insertarian muy pocas
-
 
     await sink.writeln('$i,Tienda$i,Ciudad$i,Barrio$i,'+ provincias[random]);
     
@@ -153,7 +168,5 @@ void insertarTiendas()async{
     
   }
   await sink.close();
-
-  //ANALYZE para actualizar las estadisticas
 
 }
