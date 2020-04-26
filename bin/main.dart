@@ -1,3 +1,10 @@
+/*
+Este programa genera los datos de la base de datos y los 
+escribe en archivos .csv dentro de la carpeta del proyecto.
+
+Estos archivos deben ser importados a la base de datos 
+manualmente.
+*/
 
 import 'dart:io';
 import 'dart:math';
